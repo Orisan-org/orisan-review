@@ -1,0 +1,76 @@
+package patch
+
+import "testing"
+
+func TestParseAddedRemovedContextLines(t *testing.T) {
+	doc, err := Parse([]byte(`diff --git a/app/auth.go b/app/auth.go
+index 1111111..2222222 100644
+--- a/app/auth.go
++++ b/app/auth.go
+@@ -10,3 +10,4 @@ func check() {
+ keep()
+-deny()
++allow()
++audit()
+ }
+`))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(doc.Files) != 1 {
+		t.Fatalf("files = %d, want 1", len(doc.Files))
+	}
+	file := doc.Files[0]
+	if file.NewPath != "app/auth.go" || file.Status != "modified" {
+		t.Fatalf("file = %+v", file)
+	}
+	if len(file.Hunks) != 1 {
+		t.Fatalf("hunks = %d, want 1", len(file.Hunks))
+	}
+	lines := file.Hunks[0].Lines
+	if len(lines) != 5 {
+		t.Fatalf("lines = %d, want 5", len(lines))
+	}
+	if lines[1].OldLine != 11 || lines[1].Type != "removed" {
+		t.Fatalf("removed line = %+v", lines[1])
+	}
+	if lines[2].NewLine != 11 || lines[2].Type != "added" {
+		t.Fatalf("added line = %+v", lines[2])
+	}
+}
+
+func TestParseRenamedDeletedAndBinaryFiles(t *testing.T) {
+	doc, err := Parse([]byte(`diff --git a/old.go b/new.go
+similarity index 90%
+rename from old.go
+rename to new.go
+--- a/old.go
++++ b/new.go
+@@ -1 +1 @@
+-old
++new
+diff --git a/dead.go b/dead.go
+deleted file mode 100644
+--- a/dead.go
++++ /dev/null
+@@ -1 +0,0 @@
+-dead
+diff --git a/logo.png b/logo.png
+Binary files a/logo.png and b/logo.png differ
+`))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(doc.Files) != 3 {
+		t.Fatalf("files = %d, want 3", len(doc.Files))
+	}
+	if doc.Files[0].Status != "renamed" || doc.Files[0].OldPath != "old.go" || doc.Files[0].NewPath != "new.go" {
+		t.Fatalf("renamed file = %+v", doc.Files[0])
+	}
+	if doc.Files[1].Status != "deleted" || doc.Files[1].NewPath != "dead.go" {
+		t.Fatalf("deleted file = %+v", doc.Files[1])
+	}
+	if !doc.Files[2].IsBinary {
+		t.Fatalf("binary file = %+v", doc.Files[2])
+	}
+}

@@ -1,0 +1,6 @@
+bin/
+dist/
+coverage.out
+*.test
+orisan-review
+.DS_Store
