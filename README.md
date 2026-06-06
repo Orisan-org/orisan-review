@@ -20,44 +20,50 @@ Review v0.1 is not SAST, SCA, DAST, or an AI code reviewer. It does not prove th
 
 This repository is an early v0.1 implementation. The `analyze` workflow can parse PR-like diffs, run deterministic routing rules, emit text/JSON/Markdown reports, and validate behavior against a fixture corpus. Rule coverage is intentionally narrow and focused on review routing, not vulnerability proof.
 
+## Prerequisites
+
+- Go 1.20 or newer to build and test from source.
+- Git for `git diff` examples and direct `--repo --base --head` analysis.
+
 ## Build
 
 ```sh
 go fmt ./...
 go vet ./...
 go test ./...
+mkdir -p bin
 go build -o bin/orisan-review ./cmd/orisan-review
 ```
 
 ## Quickstart
 
 ```sh
-orisan-review --help
-orisan-review version
-orisan-review list-rules
-orisan-review list-categories
-orisan-review analyze --patch testdata/diffs/tls_verification_disabled.patch --format text
-orisan-review analyze --patch testdata/diffs/tls_verification_disabled.patch --format json
+./bin/orisan-review --help
+./bin/orisan-review version
+./bin/orisan-review list-rules
+./bin/orisan-review list-categories
+./bin/orisan-review analyze --patch testdata/diffs/tls_verification_disabled.patch --format text
+./bin/orisan-review analyze --patch testdata/diffs/tls_verification_disabled.patch --format json
 ```
 
 Analyze a PR-like diff from a patch file:
 
 ```sh
 git diff main...HEAD > /tmp/review.patch
-orisan-review analyze --patch /tmp/review.patch --format text
-orisan-review analyze --patch /tmp/review.patch --format json --out review-report.json
+./bin/orisan-review analyze --patch /tmp/review.patch --format text
+./bin/orisan-review analyze --patch /tmp/review.patch --format json --out review-report.json
 ```
 
 Analyze a diff from stdin:
 
 ```sh
-git diff main...HEAD | orisan-review analyze --stdin --format text
+git diff main...HEAD | ./bin/orisan-review analyze --stdin --format text
 ```
 
 Analyze a git ref range directly:
 
 ```sh
-orisan-review analyze --repo . --base main --head HEAD --format text
+./bin/orisan-review analyze --repo . --base main --head HEAD --format text
 ```
 
 ## Privacy

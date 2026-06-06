@@ -19,6 +19,17 @@ func TestAnalyzeRequiresInput(t *testing.T) {
 	}
 }
 
+func TestAnalyzeHelpExitsOK(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"analyze", "--help"}, strings.NewReader(""), &stdout, &stderr)
+	if code != ExitOK {
+		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "Usage of analyze") {
+		t.Fatalf("help output missing usage: %q", stderr.String())
+	}
+}
+
 func TestAnalyzeFromStdinText(t *testing.T) {
 	input := `diff --git a/internal/http/client.go b/internal/http/client.go
 index 1111111..2222222 100644

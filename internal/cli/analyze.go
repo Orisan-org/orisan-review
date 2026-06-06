@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -29,6 +30,9 @@ func runAnalyze(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	flags.Int64Var(&common.maxPatchBytes, "max-patch-bytes", common.maxPatchBytes, "maximum patch size in bytes")
 
 	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return ExitOK
+		}
 		return ExitUsageError
 	}
 	if flags.NArg() > 0 {
