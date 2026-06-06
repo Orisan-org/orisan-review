@@ -1,6 +1,7 @@
 package patch
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -10,6 +11,8 @@ import (
 )
 
 var hunkHeaderPattern = regexp.MustCompile(`^@@ -([0-9]+)(?:,([0-9]+))? \+([0-9]+)(?:,([0-9]+))? @@`)
+
+var ErrNoUnifiedDiff = errors.New("no unified git diff found")
 
 func Parse(input []byte) (Document, error) {
 	text := strings.ReplaceAll(string(input), "\r\n", "\n")
@@ -114,6 +117,9 @@ func Parse(input []byte) (Document, error) {
 	}
 
 	flushFile()
+	if len(doc.Files) == 0 && strings.TrimSpace(text) != "" {
+		return Document{}, ErrNoUnifiedDiff
+	}
 	return doc, nil
 }
 

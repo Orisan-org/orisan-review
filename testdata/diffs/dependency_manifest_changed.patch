@@ -1,0 +1,10 @@
+diff --git a/go.mod b/go.mod
+index 1111111..2222222 100644
+--- a/go.mod
++++ b/go.mod
+@@ -1,3 +1,5 @@
+ module example.com/app
+ 
+ go 1.20
++
++require github.com/gin-gonic/gin v1.10.0

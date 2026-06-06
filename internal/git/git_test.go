@@ -1,11 +1,21 @@
 package git
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestRefRange(t *testing.T) {
 	r := RefRange{Base: "main", Head: "HEAD"}
 	if r.Base == "" || r.Head == "" {
 		t.Fatal("expected refs to be stored")
+	}
+}
+
+func TestEnsureGitRepoRejectsNonRepo(t *testing.T) {
+	err := ensureGitRepo(context.Background(), t.TempDir())
+	if err == nil {
+		t.Fatal("expected non-git repo error")
 	}
 }
 

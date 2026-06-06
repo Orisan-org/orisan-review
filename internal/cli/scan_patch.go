@@ -13,6 +13,9 @@ import (
 	"github.com/orisan/review/internal/model"
 	"github.com/orisan/review/internal/patch"
 	"github.com/orisan/review/internal/report"
+	"github.com/orisan/review/internal/route"
+	"github.com/orisan/review/internal/rules"
+	"github.com/orisan/review/internal/scoring"
 )
 
 func runScanPatch(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
@@ -111,6 +114,7 @@ func resultFromPatch(path string, doc patch.Document) model.ReviewResult {
 	if path == "-" {
 		source = "stdin"
 	}
+	findings := (rules.Engine{}).Run(files)
 
 	return model.ReviewResult{
 		Scanner: model.ScannerInfo{
@@ -121,9 +125,11 @@ func resultFromPatch(path string, doc patch.Document) model.ReviewResult {
 			Source: source,
 		},
 		Summary: model.ReviewSummary{
-			Decision: model.DecisionPass,
-			Routes:   []model.ReviewRoute{},
-			Grade:    "A",
+			Decision:  scoring.Decision(findings),
+			Routes:    route.RoutesForFindings(findings),
+			Grade:     scoring.Grade(findings),
+			RiskLevel: scoring.RiskLevel(findings),
+			Counts:    scoring.Counts(findings),
 		},
 		Files: model.FileSummary{
 			ChangedFiles:       len(files),
@@ -131,13 +137,13 @@ func resultFromPatch(path string, doc patch.Document) model.ReviewResult {
 			GeneratedFiles:     generatedFiles,
 			BinaryFilesSkipped: binaryFiles,
 		},
-		Findings: []model.Finding{},
+		Findings: findings,
 	}
 }
 
 func renderResult(format string, result model.ReviewResult) ([]byte, error) {
 	switch strings.ToLower(format) {
-	case "table", "terminal":
+	case "table", "terminal", "text":
 		return (report.Terminal{}).Render(result)
 	case "json":
 		return (report.JSON{}).Render(result)

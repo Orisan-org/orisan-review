@@ -1,0 +1,13 @@
+diff --git a/internal/http/client.go b/internal/http/client.go
+index 1111111..2222222 100644
+--- a/internal/http/client.go
++++ b/internal/http/client.go
+@@ -1,5 +1,9 @@
+ func client() *http.Client {
+-	return &http.Client{}
++	return &http.Client{
++		Transport: &http.Transport{
++			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
++		},
++	}
+ }

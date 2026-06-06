@@ -11,6 +11,7 @@ Usage:
   orisan-review <command> [flags]
 
 Commands:
+  analyze          Analyze a patch, stdin diff, or git diff
   diff             Analyze a git diff
   scan-patch       Analyze a unified diff patch file or stdin
   list-rules       List rule catalogue
@@ -28,6 +29,8 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	}
 
 	switch args[0] {
+	case "analyze":
+		return runAnalyze(args[1:], stdin, stdout, stderr)
 	case "diff":
 		return runDiff(args[1:], stdout, stderr)
 	case "scan-patch":

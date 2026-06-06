@@ -74,3 +74,20 @@ Binary files a/logo.png and b/logo.png differ
 		t.Fatalf("binary file = %+v", doc.Files[2])
 	}
 }
+
+func TestParseInvalidNonEmptyInput(t *testing.T) {
+	_, err := Parse([]byte("not a patch\n"))
+	if err != ErrNoUnifiedDiff {
+		t.Fatalf("err = %v, want %v", err, ErrNoUnifiedDiff)
+	}
+}
+
+func TestParseEmptyInput(t *testing.T) {
+	doc, err := Parse(nil)
+	if err != nil {
+		t.Fatalf("Parse(nil) error = %v", err)
+	}
+	if len(doc.Files) != 0 {
+		t.Fatalf("files = %d, want 0", len(doc.Files))
+	}
+}

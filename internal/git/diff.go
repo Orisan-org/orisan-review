@@ -43,6 +43,9 @@ func CollectDiff(ctx context.Context, options DiffOptions) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := ensureGitRepo(ctx, options.RepoPath); err != nil {
+		return nil, err
+	}
 	cmd := exec.CommandContext(ctx, "git", args...)
 	if options.RepoPath != "" {
 		cmd.Dir = options.RepoPath
@@ -55,4 +58,25 @@ func CollectDiff(ctx context.Context, options DiffOptions) ([]byte, error) {
 		return nil, fmt.Errorf("git diff failed: %s", string(exitErr.Stderr))
 	}
 	return nil, err
+}
+
+func ensureGitRepo(ctx context.Context, repoPath string) error {
+	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
+	if repoPath != "" {
+		cmd.Dir = repoPath
+	}
+	out, err := cmd.Output()
+	if err != nil {
+		if repoPath == "" {
+			return fmt.Errorf("not a git repository")
+		}
+		return fmt.Errorf("not a git repository: %s", repoPath)
+	}
+	if string(out) != "true\n" {
+		if repoPath == "" {
+			return fmt.Errorf("not a git repository")
+		}
+		return fmt.Errorf("not a git repository: %s", repoPath)
+	}
+	return nil
 }

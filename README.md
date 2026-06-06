@@ -18,7 +18,7 @@ Review v0.1 is not SAST, SCA, DAST, or an AI code reviewer. It does not prove th
 
 ## Current Status
 
-This repository is at the scaffold stage. The CLI command surface and package layout exist, but diff parsing and rule logic are intentionally not implemented yet.
+This repository is an early v0.1 implementation. The `analyze` workflow can parse PR-like diffs, run deterministic routing rules, emit text/JSON/Markdown reports, and validate behavior against a fixture corpus. Rule coverage is intentionally narrow and focused on review routing, not vulnerability proof.
 
 ## Build
 
@@ -36,21 +36,46 @@ orisan-review --help
 orisan-review version
 orisan-review list-rules
 orisan-review list-categories
+orisan-review analyze --patch testdata/diffs/tls_verification_disabled.patch --format text
+orisan-review analyze --patch testdata/diffs/tls_verification_disabled.patch --format json
 ```
 
-The following commands are present but return a not-implemented input error until the parser and engine are wired:
+Analyze a PR-like diff from a patch file:
 
 ```sh
-orisan-review diff --base main --head HEAD
-orisan-review diff --staged
-orisan-review diff --worktree
-orisan-review scan-patch ./change.patch
-git diff main...HEAD | orisan-review scan-patch -
+git diff main...HEAD > /tmp/review.patch
+orisan-review analyze --patch /tmp/review.patch --format text
+orisan-review analyze --patch /tmp/review.patch --format json --out review-report.json
+```
+
+Analyze a diff from stdin:
+
+```sh
+git diff main...HEAD | orisan-review analyze --stdin --format text
+```
+
+Analyze a git ref range directly:
+
+```sh
+orisan-review analyze --repo . --base main --head HEAD --format text
 ```
 
 ## Privacy
 
 Review is local-first by design. v0.1 must not upload source code, diffs, findings, or reports to Orisan. Findings must store short redacted evidence only and always set `payload_stored=false`.
+
+## Validation
+
+v0.1 success is measured by fixture routing, not vulnerability count. The release gate is:
+
+```sh
+go test ./...
+test -z "$(gofmt -l .)"
+go vet ./...
+go build ./cmd/orisan-review
+```
+
+The validation corpus lives under `testdata/diffs` with semantic expectations under `testdata/expected`. Tests check reviewer routing, finding categories, `payload_stored=false`, redacted evidence, and raw secret leakage.
 
 ## GitHub Integration
 

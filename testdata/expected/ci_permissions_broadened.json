@@ -1,0 +1,1 @@
+{"security_review_required":true,"expected_reviewers":["ci_cd_review_required","appsec_review_required"],"expected_categories":["ci_permissions_broadened"],"expected_files":[".github/workflows/deploy.yml"],"payload_stored":false}

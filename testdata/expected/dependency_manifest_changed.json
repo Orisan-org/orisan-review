@@ -1,0 +1,1 @@
+{"security_review_required":true,"expected_reviewers":["dependency_review_required"],"expected_categories":["dependency_manifest_changed"],"expected_files":["go.mod"],"payload_stored":false}

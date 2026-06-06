@@ -1,0 +1,11 @@
+diff --git a/internal/math/math_test.go b/internal/math/math_test.go
+new file mode 100644
+index 0000000..2222222
+--- /dev/null
++++ b/internal/math/math_test.go
+@@ -0,0 +1,5 @@
++func TestAdd(t *testing.T) {
++	if add(1, 1) != 2 {
++		t.Fatal("bad math")
++	}
++}

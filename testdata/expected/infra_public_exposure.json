@@ -1,0 +1,1 @@
+{"security_review_required":true,"expected_reviewers":["infra_review_required","appsec_review_required"],"expected_categories":["infra_public_exposure"],"expected_files":["infra/security-group.tf"],"payload_stored":false}

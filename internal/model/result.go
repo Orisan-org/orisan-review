@@ -14,10 +14,11 @@ type FindingCounts struct {
 }
 
 type ReviewSummary struct {
-	Decision ReviewDecision `json:"decision"`
-	Routes   []ReviewRoute  `json:"routes"`
-	Grade    string         `json:"grade"`
-	Counts   FindingCounts  `json:"counts"`
+	Decision  ReviewDecision `json:"decision"`
+	Routes    []ReviewRoute  `json:"routes"`
+	Grade     string         `json:"grade"`
+	RiskLevel string         `json:"risk_level"`
+	Counts    FindingCounts  `json:"counts"`
 }
 
 type FileSummary struct {

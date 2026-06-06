@@ -1,0 +1,11 @@
+diff --git a/internal/api/users.go b/internal/api/users.go
+index 1111111..2222222 100644
+--- a/internal/api/users.go
++++ b/internal/api/users.go
+@@ -40,7 +40,7 @@ func updateUser(user User) error {
+-	if !user.IsAdmin() {
+-		return forbidden()
+-	}
++	return nil
+ 	return update(user)
+ }

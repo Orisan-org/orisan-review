@@ -1,0 +1,11 @@
+diff --git a/infra/security-group.tf b/infra/security-group.tf
+index 1111111..2222222 100644
+--- a/infra/security-group.tf
++++ b/infra/security-group.tf
+@@ -1,4 +1,7 @@
+ resource "aws_security_group_rule" "web" {
+   type = "ingress"
++  cidr_blocks = ["0.0.0.0/0"]
++  from_port = 443
++  to_port = 443
+ }
