@@ -151,6 +151,8 @@ func renderResult(format string, result model.ReviewResult) ([]byte, error) {
 		return (report.Markdown{}).Render(result)
 	case "sarif":
 		return (report.SARIF{}).Render(result)
+	case "html":
+		return (report.HTML{}).Render(result)
 	default:
 		return nil, fmt.Errorf("unsupported output format %q", format)
 	}

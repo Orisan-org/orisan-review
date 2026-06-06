@@ -54,6 +54,13 @@ git diff main...HEAD > /tmp/review.patch
 ./bin/orisan-review analyze --patch /tmp/review.patch --format json --out review-report.json
 ```
 
+Generate a local HTML report:
+
+```sh
+./bin/orisan-review analyze --patch /tmp/review.patch --format html --out review-report.html
+open review-report.html
+```
+
 Analyze a diff from stdin:
 
 ```sh

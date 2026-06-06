@@ -25,10 +25,16 @@ func runAnalyze(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	flags.StringVar(&repoPath, "repo", "", "repository path for git diff input")
 	flags.StringVar(&baseRef, "base", "", "base git ref")
 	flags.StringVar(&headRef, "head", "", "head git ref")
-	flags.StringVar(&format, "format", "text", "output format: text, json, md, sarif")
+	flags.StringVar(&format, "format", "text", "output format: text, json, md, sarif, html")
 	flags.StringVar(&outPath, "out", "", "write report to path")
 	flags.Int64Var(&common.maxPatchBytes, "max-patch-bytes", common.maxPatchBytes, "maximum patch size in bytes")
 
+	for _, arg := range args {
+		if arg == "-h" || arg == "--help" {
+			flags.SetOutput(stdout)
+			break
+		}
+	}
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return ExitOK

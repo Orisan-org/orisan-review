@@ -21,7 +21,7 @@ func bindCommonFlags(flags interface {
 	Int64Var(*int64, string, int64, string)
 	BoolVar(*bool, string, bool, string)
 }, common *commonFlags) {
-	flags.StringVar(&common.output, "output", common.output, "output format: table, json, md, sarif")
+	flags.StringVar(&common.output, "output", common.output, "output format: table, json, md, sarif, html")
 	flags.StringVar(&common.outPath, "out", "", "write report to path")
 	flags.StringVar(&common.severityThreshold, "severity-threshold", common.severityThreshold, "severity threshold: low, medium, high, critical")
 	flags.StringVar(&common.configPath, "config", "", "optional review.yaml path")

@@ -25,8 +25,11 @@ func TestAnalyzeHelpExitsOK(t *testing.T) {
 	if code != ExitOK {
 		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
 	}
-	if !strings.Contains(stderr.String(), "Usage of analyze") {
-		t.Fatalf("help output missing usage: %q", stderr.String())
+	if !strings.Contains(stdout.String(), "Usage of analyze") {
+		t.Fatalf("help output missing usage: %q", stdout.String())
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("help wrote to stderr: %q", stderr.String())
 	}
 }
 
@@ -102,6 +105,51 @@ func TestAnalyzeBinaryDiffRoutesHumanReview(t *testing.T) {
 	}
 	if strings.Contains(stdout.String(), "Binary files a/assets/logo.png and b/assets/logo.png differ") {
 		t.Fatalf("binary report copied raw binary diff marker: %q", stdout.String())
+	}
+}
+
+func TestAnalyzeHTMLFormatAccepted(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"analyze", "--patch", "../../testdata/diffs/authorization_weakened.patch", "--format", "html"}, strings.NewReader(""), &stdout, &stderr)
+	if code != ExitOK {
+		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
+	}
+	text := stdout.String()
+	for _, want := range []string{"<!doctype html>", "Security review required", "YES", "AppSec", "payload_stored", "false"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("HTML stdout missing %q:\n%s", want, text)
+		}
+	}
+}
+
+func TestAnalyzeHTMLSafeReadmeNoFindings(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"analyze", "--patch", "../../testdata/diffs/safe_readme_change.patch", "--format", "html"}, strings.NewReader(""), &stdout, &stderr)
+	if code != ExitOK {
+		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
+	}
+	text := stdout.String()
+	for _, want := range []string{"Security review required", "NO", "No findings."} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("safe HTML stdout missing %q:\n%s", want, text)
+		}
+	}
+}
+
+func TestAnalyzeHTMLBinaryDiffRoutesHumanReview(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"analyze", "--patch", "../../testdata/unsupported/binary_file_change.patch", "--format", "html"}, strings.NewReader(""), &stdout, &stderr)
+	if code != ExitOK {
+		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
+	}
+	text := stdout.String()
+	for _, want := range []string{"Human review", "Binary file change cannot be inspected safely", "payload_stored"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("binary HTML stdout missing %q:\n%s", want, text)
+		}
+	}
+	if strings.Contains(text, "Binary files a/assets/logo.png and b/assets/logo.png differ") {
+		t.Fatalf("binary HTML copied raw binary diff marker:\n%s", text)
 	}
 }
 
