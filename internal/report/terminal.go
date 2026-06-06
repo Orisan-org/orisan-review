@@ -28,7 +28,7 @@ func (Terminal) Render(result model.ReviewResult) ([]byte, error) {
 	if len(result.Findings) > 0 {
 		fmt.Fprintln(&out, "\nWhy:")
 		for _, finding := range result.Findings {
-			fmt.Fprintf(&out, "- %s in %s\n", finding.Title, finding.Location.Path)
+			fmt.Fprintf(&out, "- %s in %s.\n", reasonSentence(finding), finding.Location.Path)
 		}
 	}
 	if len(result.Summary.Routes) > 0 {
@@ -44,15 +44,56 @@ func (Terminal) Render(result model.ReviewResult) ([]byte, error) {
 	fmt.Fprintln(&out, "\nFindings:")
 	for i, finding := range result.Findings {
 		fmt.Fprintf(&out, "%d. %s\n", i+1, finding.Category)
+		fmt.Fprintf(&out, "   Severity: %s\n", finding.Severity)
 		fmt.Fprintf(&out, "   File: %s\n", finding.Location.Path)
 		if finding.Location.StartLine != 0 {
-			fmt.Fprintf(&out, "   Line hint: %d\n", finding.Location.StartLine)
+			fmt.Fprintf(&out, "   Line: %d\n", finding.Location.StartLine)
 		}
-		fmt.Fprintf(&out, "   Reason: %s\n", finding.Evidence)
-		fmt.Fprintf(&out, "   Evidence: redacted snippet only\n")
+		fmt.Fprintf(&out, "   Reason: %s\n", reasonSentence(finding))
+		if finding.Evidence != "" {
+			fmt.Fprintf(&out, "   Safe evidence: %s\n", finding.Evidence)
+		} else {
+			fmt.Fprintf(&out, "   Safe evidence: redacted snippet only\n")
+		}
 		fmt.Fprintf(&out, "   payload_stored=%v\n", finding.PayloadStored)
 	}
 	return out.Bytes(), nil
+}
+
+func reasonSentence(finding model.Finding) string {
+	switch finding.Category {
+	case "authorization_weakened":
+		return "Authorization logic appears weakened by the changed condition"
+	case "auth_logic_changed":
+		return "Authentication-sensitive logic changed"
+	case "validation_removed":
+		return "Input validation appears removed or bypassed"
+	case "tls_verification_disabled":
+		return "TLS verification appears disabled"
+	case "secret_like_value_added":
+		return "A secret-like value appears in added code"
+	case "ci_permissions_broadened":
+		return "CI workflow permissions appear broadened"
+	case "unpinned_github_action":
+		return "A third-party GitHub Action is not pinned to a full commit SHA"
+	case "dependency_manifest_changed":
+		return "A dependency manifest or lockfile changed"
+	case "infra_public_exposure":
+		return "Infrastructure appears to expose a service or network path publicly"
+	case "destructive_migration":
+		return "A migration contains a destructive database operation"
+	case "tests_skipped":
+		return "Tests appear skipped or disabled"
+	case "ai_generated_marker":
+		return "An AI-assistance marker appears in changed content"
+	case "binary_file_change":
+		return "Binary file change cannot be inspected safely"
+	default:
+		if finding.Impact != "" {
+			return finding.Impact
+		}
+		return finding.Title
+	}
 }
 
 func yesNo(v bool) string {
