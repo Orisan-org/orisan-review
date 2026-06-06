@@ -91,3 +91,16 @@ func TestParseEmptyInput(t *testing.T) {
 		t.Fatalf("files = %d, want 0", len(doc.Files))
 	}
 }
+
+func TestParseMalformedUnifiedDiff(t *testing.T) {
+	_, err := Parse([]byte(`diff --git a/app.go b/app.go
+index 1111111..2222222 100644
+--- a/app.go
++++ b/app.go
+@@ broken hunk
++fmt.Println("hello")
+`))
+	if err == nil {
+		t.Fatal("expected malformed hunk error")
+	}
+}
