@@ -70,6 +70,8 @@ func Parse(input []byte) (Document, error) {
 			current.NewPath = strings.TrimPrefix(line, "rename to ")
 		case strings.HasPrefix(line, "Binary files "):
 			current.IsBinary = true
+		case line == "GIT binary patch":
+			current.IsBinary = true
 		case strings.HasPrefix(line, "--- "):
 			current.OldPath = cleanPatchPath(strings.TrimPrefix(line, "--- "))
 		case strings.HasPrefix(line, "+++ "):

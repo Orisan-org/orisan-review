@@ -75,6 +75,31 @@ Binary files a/logo.png and b/logo.png differ
 	}
 }
 
+func TestParseGitBinaryPatch(t *testing.T) {
+	doc, err := Parse([]byte(`diff --git a/assets/logo.png b/assets/logo.png
+index 8352675d67aed6625ece79af41c27fdb4ee2e867..eaf36c1daccfdf325514461cd1a2ffbc139b5464 100644
+GIT binary patch
+literal 4
+LcmZQzWMT#Y01f~L
+
+literal 3
+KcmZQzWC8#H2LJ>B
+
+`))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(doc.Files) != 1 {
+		t.Fatalf("files = %d, want 1", len(doc.Files))
+	}
+	if !doc.Files[0].IsBinary {
+		t.Fatalf("git binary patch was not marked binary: %+v", doc.Files[0])
+	}
+	if doc.Files[0].NewPath != "assets/logo.png" {
+		t.Fatalf("new path = %q, want assets/logo.png", doc.Files[0].NewPath)
+	}
+}
+
 func TestParseInvalidNonEmptyInput(t *testing.T) {
 	_, err := Parse([]byte("not a patch\n"))
 	if err != ErrNoUnifiedDiff {
