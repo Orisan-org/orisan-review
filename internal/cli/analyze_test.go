@@ -124,6 +124,22 @@ func TestAnalyzeGitBinaryPatchRoutesHumanReview(t *testing.T) {
 	}
 }
 
+func TestAnalyzeGitBinaryDeltaPatchRoutesHumanReview(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"analyze", "--patch", "../../testdata/unsupported/git_binary_patch_delta.patch", "--format", "text"}, strings.NewReader(""), &stdout, &stderr)
+	if code != ExitOK {
+		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
+	}
+	for _, want := range []string{"Security review required: YES", "Binary file change cannot be inspected safely", "Human review", "payload_stored=false"} {
+		if !strings.Contains(stdout.String(), want) {
+			t.Fatalf("stdout missing %q:\n%s", want, stdout.String())
+		}
+	}
+	if strings.Contains(stdout.String(), "GIT binary patch") || strings.Contains(stdout.String(), "delta 12") {
+		t.Fatalf("binary report copied raw git binary delta payload: %q", stdout.String())
+	}
+}
+
 func TestAnalyzeHTMLFormatAccepted(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := Run([]string{"analyze", "--patch", "../../testdata/diffs/authorization_weakened.patch", "--format", "html"}, strings.NewReader(""), &stdout, &stderr)

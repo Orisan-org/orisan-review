@@ -100,6 +100,28 @@ KcmZQzWC8#H2LJ>B
 	}
 }
 
+func TestParseGitBinaryPatchDelta(t *testing.T) {
+	doc, err := Parse([]byte(`diff --git a/assets/logo.png b/assets/logo.png
+index 2e65efe2a145dda7ee51d1741299f848e5bf752e..78981922613b2afb6025042ff6bd878ac1994e85 100644
+GIT binary patch
+delta 12
+Tcma!nU|?VbVrqC?0Rsm?5L;Si
+
+delta 8
+PcmbQmU|?VbVrJ4a1ONa5
+
+`))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(doc.Files) != 1 {
+		t.Fatalf("files = %d, want 1", len(doc.Files))
+	}
+	if !doc.Files[0].IsBinary {
+		t.Fatalf("git binary delta patch was not marked binary: %+v", doc.Files[0])
+	}
+}
+
 func TestParseInvalidNonEmptyInput(t *testing.T) {
 	_, err := Parse([]byte("not a patch\n"))
 	if err != ErrNoUnifiedDiff {
