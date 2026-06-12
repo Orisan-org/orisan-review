@@ -98,7 +98,7 @@ func TestAnalyzeBinaryDiffRoutesHumanReview(t *testing.T) {
 	if code != ExitOK {
 		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
 	}
-	for _, want := range []string{"Security review required: YES", "Binary file change cannot be inspected safely", "Human review", "payload_stored=false"} {
+	for _, want := range []string{"Security review required: YES", "Risk level: MEDIUM", "Review decision: review_required", "Binary file change cannot be inspected safely", "Human review", "payload_stored=false"} {
 		if !strings.Contains(stdout.String(), want) {
 			t.Fatalf("stdout missing %q:\n%s", want, stdout.String())
 		}
@@ -114,7 +114,7 @@ func TestAnalyzeGitBinaryPatchRoutesHumanReview(t *testing.T) {
 	if code != ExitOK {
 		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
 	}
-	for _, want := range []string{"Security review required: YES", "Binary file change cannot be inspected safely", "Human review", "payload_stored=false"} {
+	for _, want := range []string{"Security review required: YES", "Risk level: MEDIUM", "Review decision: review_required", "Binary file change cannot be inspected safely", "Human review", "payload_stored=false"} {
 		if !strings.Contains(stdout.String(), want) {
 			t.Fatalf("stdout missing %q:\n%s", want, stdout.String())
 		}
@@ -130,7 +130,7 @@ func TestAnalyzeGitBinaryDeltaPatchRoutesHumanReview(t *testing.T) {
 	if code != ExitOK {
 		t.Fatalf("code = %d, want %d, stderr = %q", code, ExitOK, stderr.String())
 	}
-	for _, want := range []string{"Security review required: YES", "Binary file change cannot be inspected safely", "Human review", "payload_stored=false"} {
+	for _, want := range []string{"Security review required: YES", "Risk level: MEDIUM", "Review decision: review_required", "Binary file change cannot be inspected safely", "Human review", "payload_stored=false"} {
 		if !strings.Contains(stdout.String(), want) {
 			t.Fatalf("stdout missing %q:\n%s", want, stdout.String())
 		}
