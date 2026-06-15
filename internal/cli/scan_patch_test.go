@@ -26,4 +26,7 @@ index 1111111..2222222 100644
 	if !strings.Contains(stdout.String(), `"decision": "pass"`) {
 		t.Fatalf("stdout missing pass decision: %s", stdout.String())
 	}
+	if !strings.Contains(stdout.String(), `"sensitive_files": 0`) {
+		t.Fatalf("README-only diff should not count as sensitive: %s", stdout.String())
+	}
 }

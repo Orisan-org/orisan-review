@@ -3,7 +3,9 @@ package git
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 type DiffMode string
@@ -61,6 +63,11 @@ func CollectDiff(ctx context.Context, options DiffOptions) ([]byte, error) {
 }
 
 func ensureGitRepo(ctx context.Context, repoPath string) error {
+	if repoPath != "" {
+		if _, err := os.Stat(filepath.Join(repoPath, ".git")); err != nil {
+			return fmt.Errorf("not a git repository: %s", repoPath)
+		}
+	}
 	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
 	if repoPath != "" {
 		cmd.Dir = repoPath

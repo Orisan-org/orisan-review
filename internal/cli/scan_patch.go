@@ -105,7 +105,7 @@ func resultFromPatch(path string, doc patch.Document) model.ReviewResult {
 		if files[i].IsBinary {
 			binaryFiles++
 		}
-		if classify.IsSensitivePath(files[i].NewPath) {
+		if classify.IsSecuritySensitivePath(files[i].NewPath) {
 			sensitiveFiles++
 		}
 	}

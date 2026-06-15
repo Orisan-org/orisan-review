@@ -62,6 +62,10 @@ func runFileRules(file model.ChangedFile) []model.Finding {
 		line := firstSecretLine(file)
 		findings = append(findings, finding("REVIEW-SEC-040", "Secret-like value added", model.SeverityCritical, "secret_like_value_added", path, lineNumber(line), "Added line contains a secret-like value.", "Secrets committed to code can be copied, logged, or abused.", "Remove the secret, rotate it if real, and use a secret manager.", "high", line.Content))
 	}
+	if commandExecutionAdded(file) {
+		line := firstCommandExecutionLine(file)
+		findings = append(findings, finding("REVIEW-RCE-050", "Command execution surface added", model.SeverityCritical, "command_execution_added", path, lineNumber(line), "Added line introduces command execution or a shell pipeline.", "Command execution surfaces can turn untrusted input or agent output into host code execution.", "Require security review and constrain executable inputs before merge.", "high", line.Content))
+	}
 	if ciPermissionsBroadened(file) {
 		line := firstRelevantLine(file, "write-all", "contents: write", "id-token: write", "actions: write", "pull-requests: write")
 		findings = append(findings, finding("REVIEW-CICD-060", "CI workflow permissions broadened", model.SeverityHigh, "ci_permissions_broadened", path, lineNumber(line), "GitHub Actions permissions changed toward broader write access.", "Broader workflow token permissions can expand CI/CD blast radius.", "Use least privilege and require CI/CD owner review.", "high", line.Content))
@@ -159,6 +163,19 @@ func secretAdded(file model.ChangedFile) bool {
 		}
 	}
 	return false
+}
+
+func commandExecutionAdded(file model.ChangedFile) bool {
+	return firstCommandExecutionLine(file).Content != ""
+}
+
+func firstCommandExecutionLine(file model.ChangedFile) model.DiffLine {
+	for _, line := range addedLines(file) {
+		if commandExecutionPattern.MatchString(line.Content) || curlPipeShellPattern.MatchString(line.Content) {
+			return line
+		}
+	}
+	return model.DiffLine{}
 }
 
 func ciPermissionsBroadened(file model.ChangedFile) bool {
@@ -303,3 +320,5 @@ func containsAny(s string, needles ...string) bool {
 }
 
 var secretPattern = regexp.MustCompile(`(?i)(aws_secret_access_key|private_key|api[_-]?key|password|database_url|bearer\s+[a-z0-9._\-]+|gh[pousr]_[a-z0-9_]+|xox[baprs]-)`)
+var commandExecutionPattern = regexp.MustCompile(`(?i)\b(os/exec|exec\.Command|subprocess\.(run|popen|call)|child_process\.(exec|spawn|execFile)|Runtime\.getRuntime\(\)\.exec|ProcessBuilder|system\(|popen\()`)
+var curlPipeShellPattern = regexp.MustCompile(`(?i)\b(curl|wget)\b[^|\n\r]*\|\s*(sh|bash|zsh|fish|powershell|pwsh)\b`)
