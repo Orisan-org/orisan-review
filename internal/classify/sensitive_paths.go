@@ -9,6 +9,15 @@ func IsSensitivePath(path string) bool {
 	return len(CategoriesForPath(path)) > 0
 }
 
+func IsSecuritySensitivePath(path string) bool {
+	for _, category := range CategoriesForPath(path) {
+		if category != "public_claims" {
+			return true
+		}
+	}
+	return false
+}
+
 func CategoriesForPath(path string) []string {
 	clean := filepath.ToSlash(strings.ToLower(path))
 	base := filepath.Base(clean)

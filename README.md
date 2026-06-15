@@ -2,6 +2,11 @@
 
 Orisan Review is a local-first CLI that analyzes pull request diffs for security-sensitive AI-assisted output risk.
 
+> **Status: alpha, parked for maintenance.** Review is a secondary community
+> artifact. Maintenance scope is portability, CI health, security fixes,
+> documentation honesty, and keeping deterministic diff-routing workflows
+> working.
+
 It helps answer:
 
 > What changed, why does it matter, and who needs to review this before it is merged or trusted?
